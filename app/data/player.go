@@ -52,7 +52,7 @@ type Exploration struct {
 
 func (U *User) GetPlayer(user_id uint64) (*Player, error) {
 	statement := "SELECT * FROM players WHERE user_id=$1"
-	row := DB.QueryRow(statement, user_id)
+	row := db.QueryRow(statement, user_id)
 	var player *Player
 	if row == nil {
 		newPlayer, err := createNewPlayer(user_id)
@@ -66,7 +66,7 @@ func (U *User) GetPlayer(user_id uint64) (*Player, error) {
 		return &Player{}, err
 	}
 	playerStats := "SELECT * FROM player_stats WHERE player_id=$1"
-	statsRow := DB.QueryRow(playerStats, player.ID)
+	statsRow := db.QueryRow(playerStats, player.ID)
 	if statsRow == nil {
 		return &Player{}, err
 	}
@@ -75,7 +75,7 @@ func (U *User) GetPlayer(user_id uint64) (*Player, error) {
 		return &Player{}, err
 	}
 	playerAssets := "SELECT * FROM player_assets WHERE player_id=$1"
-	assetsRow := DB.QueryRow(playerAssets, player.ID)
+	assetsRow := db.QueryRow(playerAssets, player.ID)
 	if assetsRow == nil {
 		return &Player{}, err
 	}
@@ -84,7 +84,7 @@ func (U *User) GetPlayer(user_id uint64) (*Player, error) {
 		return &Player{}, err
 	}
 	playerExploration := "SELECT * FROM player_exploration WHERE player_id=$1"
-	explorationRow := DB.QueryRow(playerExploration, player.ID)
+	explorationRow := db.QueryRow(playerExploration, player.ID)
 	if explorationRow == nil {
 		return &Player{}, err
 	}
@@ -143,7 +143,7 @@ func createNewPlayer(id uint64) (*Player, error) {
 
 	playerCreate := "INSERT INTO players (user_id, vip_player, username, avatar, level, experience, experience_for_next_level) VALUES ($1, $2, $3, $4, $5, $6, $7)"
 
-	newPlayerRow, err := DB.Exec(playerCreate, &newPlayerData.UserID, &newPlayerData.VipPlayer, &newPlayerData.Username, &newPlayerData.Avatar, &newPlayerData.Level, &newPlayerData.Experience, &newPlayerData.ExperienceForNextLevel)
+	newPlayerRow, err := db.Exec(playerCreate, &newPlayerData.UserID, &newPlayerData.VipPlayer, &newPlayerData.Username, &newPlayerData.Avatar, &newPlayerData.Level, &newPlayerData.Experience, &newPlayerData.ExperienceForNextLevel)
 	if err != nil {
 		
 		return &Player{}, err
@@ -154,20 +154,20 @@ func createNewPlayer(id uint64) (*Player, error) {
 	}
 	playerStats := "INSERT INTO player_stats (player_id, health, max_health, strength, criticalstr, defense, agility, accuracy, dodge, buffs, debuffs) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)"
 
-	_, err = DB.Exec(playerStats, &newPlayerID, &newPlayerData.Stats.Health, &newPlayerData.Stats.MaxHealth, &newPlayerData.Stats.Strength, &newPlayerData.Stats.CriticalStr, &newPlayerData.Stats.Defense, &newPlayerData.Stats.Agility, &newPlayerData.Stats.Accuracy, &newPlayerData.Stats.Dodge, &newPlayerData.Stats.StatModifiers.Buffs, &newPlayerData.Stats.StatModifiers.Debuffs)
+	_, err = db.Exec(playerStats, &newPlayerID, &newPlayerData.Stats.Health, &newPlayerData.Stats.MaxHealth, &newPlayerData.Stats.Strength, &newPlayerData.Stats.CriticalStr, &newPlayerData.Stats.Defense, &newPlayerData.Stats.Agility, &newPlayerData.Stats.Accuracy, &newPlayerData.Stats.Dodge, &newPlayerData.Stats.StatModifiers.Buffs, &newPlayerData.Stats.StatModifiers.Debuffs)
 	if err != nil {
 		return &Player{}, err
 	}
 	playerAssets := "INSERT INTO player_assets (player_id, vip_units, units, debt, weapons, armor, junk) VALUES ($1, $2, $3, $4, $5, $6, $7)"
 
-	_, err = DB.Exec(playerAssets, &newPlayerID, &newPlayerData.Assets.VipUnits, &newPlayerData.Assets.Units, &newPlayerData.Assets.Debt, &newPlayerData.Assets.Inventory.Weapons, &newPlayerData.Assets.Inventory.Armor, &newPlayerData.Assets.Inventory.Junk)
+	_, err = db.Exec(playerAssets, &newPlayerID, &newPlayerData.Assets.VipUnits, &newPlayerData.Assets.Units, &newPlayerData.Assets.Debt, &newPlayerData.Assets.Inventory.Weapons, &newPlayerData.Assets.Inventory.Armor, &newPlayerData.Assets.Inventory.Junk)
 	if err != nil {
 		return &Player{}, err
 	}
 
 	playerExploration := "INSERT INTO player_exploration (player_id, current_location, location_name, location_description, location_image, steps_next_location, steps, steps_max, step_modifier) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
 
-	_, err = DB.Exec(playerExploration, &newPlayerID, &newPlayerData.Exploration.CurrentLocation, &newPlayerData.Exploration.CurrentLocationName, &newPlayerData.Exploration.CurrentLocationDescription, &newPlayerData.Exploration.CurrentLocationImage, &newPlayerData.Exploration.StepsToNextLocation, &newPlayerData.Exploration.Steps, &newPlayerData.Exploration.StepsMax, &newPlayerData.Exploration.StepModifier)
+	_, err = db.Exec(playerExploration, &newPlayerID, &newPlayerData.Exploration.CurrentLocation, &newPlayerData.Exploration.CurrentLocationName, &newPlayerData.Exploration.CurrentLocationDescription, &newPlayerData.Exploration.CurrentLocationImage, &newPlayerData.Exploration.StepsToNextLocation, &newPlayerData.Exploration.Steps, &newPlayerData.Exploration.StepsMax, &newPlayerData.Exploration.StepModifier)
 	if err != nil {
 		return &Player{}, err
 	}

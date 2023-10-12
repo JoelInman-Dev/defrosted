@@ -6,10 +6,10 @@ import (
 
 	_ "github.com/lib/pq"
 )
-var DB *sql.DB
+var db *sql.DB
 
 func Connect() {
-	dsn := "host=172.23.0.2 port=5432 user=defrosted password=defrosted dbname=defrosted sslmode=disable"
+	dsn := "user=postgres password=defrosted sslmode=disable"
 	var err error
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
@@ -20,4 +20,7 @@ func Connect() {
 	if err != nil {
 		fmt.Println("Error: Could not establish a connection with the database", err)
 	}
+
+	fmt.Println("Connected to database")
+
 }

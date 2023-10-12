@@ -5,6 +5,7 @@ services:
     container_name: DefrostedApp
     restart: always
     environment:
+      - POSTGRES_DB=defrosted
       - POSTGRES_USER=defrosted
       - POSTGRES_PASSWORD=defrosted
     ports:

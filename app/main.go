@@ -8,6 +8,6 @@ import (
 func main() {
 		println("Hello World")
 
-		routes.Setup()
 		data.Connect()
+		routes.Setup()
 }

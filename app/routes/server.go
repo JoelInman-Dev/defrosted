@@ -30,11 +30,13 @@ func Setup() {
 	}))
 	// Auth Routes
 
-	app.Post("/auth/login", Login)
 	app.Post("/auth/register", Register)
+	app.Post("/auth/login", Login)
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World 👋!")
 	})
 
-	app.Listen(":5000")
+	if err := app.Listen(":5000"); err != nil {
+		panic(err)
+	}
 }

@@ -11,7 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type user struct {
+type formData struct {
     Email    string `json:"email"`
     Password string `json:"password"`
 }
@@ -24,7 +24,7 @@ func AuthMiddleware(c *fiber.Ctx) error {
 	// check if there is an active session
 	session, err := store.Get(c)
 
-	//check if the path is home, if so, allow the request
+	//check if the path is auth, if so, allow the request
 	if strings.Split(c.Path(), "/")[1] == "auth" {
 		return c.Next()
 	}
@@ -45,15 +45,15 @@ func AuthMiddleware(c *fiber.Ctx) error {
 
 func Register(c *fiber.Ctx) error {
 	c.Accepts("application/json")
-	var u user
-	err := c.BodyParser(&u)
+	var requestUser formData
+	err := c.BodyParser(&requestUser)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Error parsing the request",
 			"error": err.Error(),
 		})
 	}
-	password, bcErr := bcrypt.GenerateFromPassword([]byte(u.Password), 14)
+	password, bcErr := bcrypt.GenerateFromPassword([]byte(requestUser.Password), 14)
 
 	if bcErr != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -61,7 +61,7 @@ func Register(c *fiber.Ctx) error {
 		})
 	}
 	user := data.User {
-		Email: u.Email,
+		Email: requestUser.Email,
 		Password: string(password),
 		EmailVerified: false,
 		Role: "player",
@@ -78,22 +78,22 @@ func Register(c *fiber.Ctx) error {
 }
 
 func Login(c *fiber.Ctx) error {
-	var userData user
+	var requestUser formData
 
-	err := c.BodyParser(&userData)
+	err := c.BodyParser(&requestUser)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "Error parsing the request",
 		})
 	}
-	var user data.User
+	var userRecord data.User
 	// check if user exists
-	if !data.CheckEmail(userData.Email, &user) {
+	if !data.CheckEmail(requestUser.Email, &userRecord) {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Player does not exist with that email, Register now!",
 		})
 	}
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(userData.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(userRecord.Password), []byte(requestUser.Password))
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Invalid Password provided, Please try again",
@@ -105,7 +105,7 @@ func Login(c *fiber.Ctx) error {
 			"message": "Something went wrong" + sessErr.Error(),
 		})
 	}
-	player, err := user.GetPlayer(user.ID)
+	player, err := userRecord.GetPlayer(userRecord.ID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Something went wrong getting player" + err.Error(),
@@ -118,7 +118,7 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 	sess.Set(AUTH_KEY, true)
-	sess.Set(USER_ID, user.ID)
+	sess.Set(USER_ID, userRecord.ID)
 	sess.Set(PLAYER, string(playerJson))
 	sessionPlayer := sess.Get(PLAYER)
 	json.Unmarshal([]byte(sessionPlayer.(string)), &sessionPlayer)

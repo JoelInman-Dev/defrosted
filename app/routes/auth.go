@@ -23,7 +23,6 @@ func NewMiddleware() fiber.Handler {
 func AuthMiddleware(c *fiber.Ctx) error {
 	// check if there is an active session
 	session, err := store.Get(c)
-	fmt.Println("Session: ", session)
 	//check if the path is auth, if so, allow the request
 	if strings.Split(c.Path(), "/")[1] == "auth" {
 		return c.Next()

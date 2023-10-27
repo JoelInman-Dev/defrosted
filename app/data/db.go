@@ -9,9 +9,9 @@ import (
 var db *sql.DB
 
 func Connect() {
-	dsn := "user=postgres password=defrosted sslmode=disable"
+	dsn := "user=defrosted password=defrosted dbname=defrosted sslmode=disable"
 	var err error
-	db, err := sql.Open("postgres", dsn)
+	db, err = sql.Open("postgres", dsn)
 	if err != nil {
 		panic(err)
 	}

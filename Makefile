@@ -1,0 +1,2 @@
+Run:
+	go run ./app
